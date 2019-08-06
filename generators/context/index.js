@@ -20,7 +20,7 @@ module.exports = class extends BaseGenerator {
             {
                 type: 'input',
                 name: 'name',
-                message: 'Component name?',
+                message: 'Context name?',
                 required: true,
                 default: 'Dummy'
             },
@@ -74,22 +74,16 @@ module.exports = class extends BaseGenerator {
     }
 
     writing() {
-        // If module, generate within named directory
-        this.destination = this.options.output
-        if (this.options.module) {
-            this.destination += `/${this.name}`
-        }
-
-        this._generateComponent()
-        this._generateModule()
-        this._generateMdx()
-        this._generateTests()
+        this._generateContext()
+        this._generateContainer()
+        this._modifyModule()
+        this._modifyContainerModule()
     }
 
-    _generateComponent() {
+    _generateContext() {
         this.fs.copyTpl(
-            this.templatePath('Component.tsx'),
-            this.destinationPath(`${this.destination}/${this.name}.tsx`),
+            this.templatePath('Context.tsx'),
+            this.destinationPath(`${this.options.output}/${this.name}Context.tsx`),
             {
                 name: this.name,
                 props: this.columns,
@@ -98,57 +92,46 @@ module.exports = class extends BaseGenerator {
         )
     }
 
-    _generateModule() {
+    _generateContainer() {
+        if (this.options.container) {
+            this.fs.copyTpl(
+                this.templatePath('Container.tsx'),
+                this.destinationPath(
+                    `${this.options.containerOutput || this.options.output}/${
+                        this.name
+                    }Container.tsx`
+                ),
+                {
+                    name: this.name,
+                    props: this.columns,
+                    ...this.options
+                }
+            )
+        }
+    }
+
+    _modifyModule() {
         if (this.options.module) {
-            this.fs.copyTpl(
-                this.templatePath('index.ts'),
-                this.destinationPath(`${this.destination}/index.ts`),
-                {
-                    name: this.name,
-                    props: this.columns,
-                    ...this.options
-                }
+            this.fs.append(
+                `${this.options.output}/index.ts`,
+                `
+            export * from "./${this.name}Context"`
             )
         }
     }
 
-    _generateMdx() {
-        if (this.options.mdx) {
-            this.fs.copyTpl(
-                this.templatePath('Component.mdx'),
-                this.destinationPath(`${this.destination}/${this.name}.mdx`),
-                {
-                    name: this.name,
-                    props: this.columns,
-                    ...this.options
-                }
-            )
-        }
-    }
+    _modifyContainerModule() {
+        if (this.options.container && this.options.module) {
+            const destination = this.options.containerOutput || this.options.output
 
-    _generateTests() {
-        if (this.options.tests) {
-            if (this.options.inline) {
-                this.fs.copyTpl(
-                    this.templatePath('Component.test.tsx'),
-                    this.destinationPath(`${this.destination}/${this.name}.test.tsx`),
-                    {
-                        name: this.name,
-                        props: this.columns,
-                        ...this.options
-                    }
+            try {
+                this.fs.append(
+                    `${destination}/index.ts`,
+                    `
+            export * from "./${this.name}Container"`
                 )
-            } else {
-                let destination = `${this.destination}/__tests__`
-                this.fs.copyTpl(
-                    this.templatePath('__tests__/Component.test.tsx'),
-                    this.destinationPath(`${destination}/${this.name}.tsx`),
-                    {
-                        name: this.name,
-                        props: this.columns,
-                        ...this.options
-                    }
-                )
+            } catch (e) {
+                this.log(`Failed updating ${destination}/index.ts....`)
             }
         }
     }

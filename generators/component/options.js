@@ -46,5 +46,11 @@ module.exports = {
         required: false,
         default: false,
         description: 'Include useState import and dummy usage'
+    },
+    output: {
+        type: String,
+        required: true,
+        default: 'components',
+        description: 'Directory to generate in'
     }
 }
