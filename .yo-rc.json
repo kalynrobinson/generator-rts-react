@@ -1,0 +1,9 @@
+{
+    "generator-node": {
+        "promptValues": {
+            "authorName": "Kalyn Robinson",
+            "authorEmail": "kalyndrobinson@gmail.com",
+            "authorUrl": "https://github.com/kalynrobinson"
+        }
+    }
+}
