@@ -1,11 +1,11 @@
-'use strict'
-const Generator = require('yeoman-generator')
-const chalk = require('chalk')
-const yosay = require('yosay')
-const prettier = require('gulp-prettier')
-const filter = require('gulp-filter')
+"use strict"
+const Generator = require("yeoman-generator")
+const chalk = require("chalk")
+const yosay = require("yosay")
+const prettier = require("gulp-prettier")
+const filter = require("gulp-filter")
 
-const prettierFilter = filter(['**/*.{js,jsx,ts,tsx}'], { restore: true })
+const prettierFilter = filter(["**/*.{js,jsx,ts,tsx}"], { restore: true })
 
 module.exports = class extends Generator {
     /**
@@ -30,7 +30,9 @@ module.exports = class extends Generator {
     greeting() {
         this.log(
             yosay(
-                `Welcome to the majestic ${chalk.red('generator-rts-react')} generator!`
+                `Welcome to the majestic ${chalk.red(
+                    "generator-rts-react"
+                )} generator!`
             )
         )
     }

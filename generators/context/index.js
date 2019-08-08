@@ -1,7 +1,7 @@
-'use strict'
-const BaseGenerator = require('../BaseGenerator')
+"use strict"
+const BaseGenerator = require("../BaseGenerator")
 
-const options = require('./options')
+const options = require("./options")
 
 module.exports = class extends BaseGenerator {
     /**
@@ -12,44 +12,46 @@ module.exports = class extends BaseGenerator {
         super(args, opts)
 
         // Register options
-        Object.entries(options).forEach(([name, config]) => this.option(name, config))
+        Object.entries(options).forEach(([name, config]) =>
+            this.option(name, config)
+        )
     }
 
     prompting() {
         const namePrompt = [
             {
-                type: 'input',
-                name: 'name',
-                message: 'Context name?',
+                type: "input",
+                name: "name",
+                message: "Context name?",
                 required: true,
-                default: 'Dummy'
+                default: "Dummy"
             },
             {
-                type: 'confirm',
-                name: 'addProps',
-                message: 'Do you want to add props?',
-                default: 'Y'
+                type: "confirm",
+                name: "addProps",
+                message: "Do you want to add props?",
+                default: "Y"
             }
         ]
 
         const columnPrompts = [
             {
-                type: 'input',
-                name: 'attributeName',
-                message: 'Prop name?',
-                default: 'dummy'
+                type: "input",
+                name: "attributeName",
+                message: "Prop name?",
+                default: "dummy"
             },
             {
-                type: 'input',
-                name: 'attributeType',
-                message: 'Prop type?',
-                default: 'any'
+                type: "input",
+                name: "attributeType",
+                message: "Prop type?",
+                default: "any"
             },
             {
-                type: 'confirm',
-                name: 'addProps',
-                message: 'Do you want to add more props?',
-                default: 'Y'
+                type: "confirm",
+                name: "addProps",
+                message: "Do you want to add more props?",
+                default: "Y"
             }
         ]
 
@@ -85,8 +87,10 @@ module.exports = class extends BaseGenerator {
 
     _generateContext() {
         this.fs.copyTpl(
-            this.templatePath('Context.tsx'),
-            this.destinationPath(`${this.options.output}/${this.name}Context.tsx`),
+            this.templatePath("Context.tsx"),
+            this.destinationPath(
+                `${this.options.output}/${this.name}Context.tsx`
+            ),
             {
                 name: this.name,
                 props: this.columns,
@@ -98,7 +102,7 @@ module.exports = class extends BaseGenerator {
     _generateContainer() {
         if (this.options.container) {
             this.fs.copyTpl(
-                this.templatePath('Container.tsx'),
+                this.templatePath("Container.tsx"),
                 this.destinationPath(
                     `${this.options.containerOutput || this.options.output}/${
                         this.name
@@ -125,7 +129,8 @@ module.exports = class extends BaseGenerator {
 
     _modifyContainerModule() {
         if (this.options.container && this.options.module) {
-            const destination = this.options.containerOutput || this.options.output
+            const destination =
+                this.options.containerOutput || this.options.output
 
             try {
                 this.fs.append(

@@ -1,7 +1,7 @@
-'use strict'
-const BaseGenerator = require('../BaseGenerator')
+"use strict"
+const BaseGenerator = require("../BaseGenerator")
 
-const options = require('./options')
+const options = require("./options")
 
 module.exports = class extends BaseGenerator {
     /**
@@ -12,44 +12,46 @@ module.exports = class extends BaseGenerator {
         super(args, opts)
 
         // Register options
-        Object.entries(options).forEach(([name, config]) => this.option(name, config))
+        Object.entries(options).forEach(([name, config]) =>
+            this.option(name, config)
+        )
     }
 
     prompting() {
         const namePrompt = [
             {
-                type: 'input',
-                name: 'name',
-                message: 'Component name?',
+                type: "input",
+                name: "name",
+                message: "Component name?",
                 required: true,
-                default: 'Dummy'
+                default: "Dummy"
             },
             {
-                type: 'confirm',
-                name: 'addProps',
-                message: 'Do you want to add props?',
-                default: 'Y'
+                type: "confirm",
+                name: "addProps",
+                message: "Do you want to add props?",
+                default: "Y"
             }
         ]
 
         const columnPrompts = [
             {
-                type: 'input',
-                name: 'attributeName',
-                message: 'Prop name?',
-                default: 'dummy'
+                type: "input",
+                name: "attributeName",
+                message: "Prop name?",
+                default: "dummy"
             },
             {
-                type: 'input',
-                name: 'attributeType',
-                message: 'Prop type?',
-                default: 'any'
+                type: "input",
+                name: "attributeType",
+                message: "Prop type?",
+                default: "any"
             },
             {
-                type: 'confirm',
-                name: 'addProps',
-                message: 'Do you want to add more props?',
-                default: 'Y'
+                type: "confirm",
+                name: "addProps",
+                message: "Do you want to add more props?",
+                default: "Y"
             }
         ]
 
@@ -88,7 +90,7 @@ module.exports = class extends BaseGenerator {
 
     _generateComponent() {
         this.fs.copyTpl(
-            this.templatePath('Component.tsx'),
+            this.templatePath("Component.tsx"),
             this.destinationPath(`${this.destination}/${this.name}.tsx`),
             {
                 name: this.name,
@@ -101,7 +103,7 @@ module.exports = class extends BaseGenerator {
     _generateModule() {
         if (this.options.module) {
             this.fs.copyTpl(
-                this.templatePath('index.ts'),
+                this.templatePath("index.ts"),
                 this.destinationPath(`${this.destination}/index.ts`),
                 {
                     name: this.name,
@@ -115,7 +117,7 @@ module.exports = class extends BaseGenerator {
     _generateMdx() {
         if (this.options.mdx) {
             this.fs.copyTpl(
-                this.templatePath('Component.mdx'),
+                this.templatePath("Component.mdx"),
                 this.destinationPath(`${this.destination}/${this.name}.mdx`),
                 {
                     name: this.name,
@@ -130,8 +132,10 @@ module.exports = class extends BaseGenerator {
         if (this.options.tests) {
             if (this.options.inline) {
                 this.fs.copyTpl(
-                    this.templatePath('Component.test.tsx'),
-                    this.destinationPath(`${this.destination}/${this.name}.test.tsx`),
+                    this.templatePath("Component.test.tsx"),
+                    this.destinationPath(
+                        `${this.destination}/${this.name}.test.tsx`
+                    ),
                     {
                         name: this.name,
                         props: this.columns,
@@ -141,7 +145,7 @@ module.exports = class extends BaseGenerator {
             } else {
                 let destination = `${this.destination}/__tests__`
                 this.fs.copyTpl(
-                    this.templatePath('__tests__/Component.test.tsx'),
+                    this.templatePath("__tests__/Component.test.tsx"),
                     this.destinationPath(`${destination}/${this.name}.tsx`),
                     {
                         name: this.name,
