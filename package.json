@@ -41,8 +41,7 @@
         "gulp-filter": "^6.0.0",
         "gulp-prettier": "^2.1.0",
         "sign-bunny": "^1.0.0",
-        "yeoman-generator": "^2.0.1",
-        "yosay": "^2.0.1"
+        "yeoman-generator": "^2.0.1"
     },
     "jest": {
         "testEnvironment": "node"

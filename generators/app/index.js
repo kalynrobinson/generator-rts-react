@@ -1,34 +1,44 @@
 "use strict"
-const Generator = require("yeoman-generator")
-var signBunny = require("sign-bunny")
+const chalk = require("chalk")
 
-module.exports = class extends Generator {
+const BaseGenerator = require("../BaseGenerator")
+const subgenerators = require("./subgenerators")
+
+module.exports = class extends BaseGenerator {
+    /**
+     * Set help output.
+     * @constructor
+     */
+    constructor(args, opts) {
+        super(args, opts)
+
+        this.desc(this._listSubgenerators().join("\n"))
+    }
+
+    /**
+     * Greet and list subgenerators.
+     */
     prompting() {
-        // Have Yeoman greet the user.
-        this.log(signBunny("rts-react"))
+        this._greet()
 
-        const prompts = [
-            {
-                type: "confirm",
-                name: "someAnswer",
-                message: "Would you like to enable this option?",
-                default: true
-            }
+        this.log("")
+
+        this.log(this._listSubgenerators().join("\n"))
+    }
+
+    /**
+     * Builds list of subgenerators to be logged.
+     * @return {string[]} 
+     */
+    _listSubgenerators() {
+        const lines = [
+            chalk.yellow("Try running one of the subgenerators:")
         ]
-
-        return this.prompt(prompts).then(props => {
-            this.props = props
+        
+        subgenerators.forEach(sub => {
+            lines.push(`  ${chalk.gray("yo rts-react:")}${sub}`)
         })
-    }
 
-    writing() {
-        this.fs.copy(
-            this.templatePath("dummyfile.txt"),
-            this.destinationPath("dummyfile.txt")
-        )
-    }
-
-    install() {
-        this.installDependencies()
+        return lines
     }
 }

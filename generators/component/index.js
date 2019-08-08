@@ -18,6 +18,8 @@ module.exports = class extends BaseGenerator {
     }
 
     prompting() {
+        this._greet()
+        
         const namePrompt = [
             {
                 type: "input",

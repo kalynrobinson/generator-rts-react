@@ -1,9 +1,9 @@
 "use strict"
 const Generator = require("yeoman-generator")
-const chalk = require("chalk")
-const yosay = require("yosay")
 const prettier = require("gulp-prettier")
 const filter = require("gulp-filter")
+var signBunny = require("sign-bunny")
+const chalk = require("chalk")
 
 const prettierFilter = filter(["**/*.{js,jsx,ts,tsx}"], { restore: true })
 
@@ -27,13 +27,7 @@ module.exports = class extends Generator {
         this.registerTransformStream(prettierFilter.restore)
     }
 
-    greeting() {
-        this.log(
-            yosay(
-                `Welcome to the majestic ${chalk.red(
-                    "generator-rts-react"
-                )} generator!`
-            )
-        )
+    _greet() {
+        this.log(chalk.cyanBright(signBunny("rts-react")))
     }
 }
