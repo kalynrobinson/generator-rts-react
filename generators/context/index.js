@@ -55,6 +55,9 @@ module.exports = class extends BaseGenerator {
 
         this.columns = []
 
+        /**
+         * Repeat props questions until user declines.
+         */
         const loop = relevantPrompts => {
             return this.prompt(relevantPrompts).then(props => {
                 // Initial question set

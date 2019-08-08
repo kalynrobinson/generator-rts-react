@@ -70,7 +70,7 @@ module.exports = class extends BaseGenerator {
             })
         }
 
-        return loop([...namePrompt])
+        return loop(namePrompt)
     }
 
     writing() {
