@@ -77,7 +77,7 @@ module.exports = class extends BaseGenerator {
         return this.prompt(relevantPrompts).then(props => {
             // Initial question set
             if (props.name) {
-                this.name = props.name
+                this.baseName = props.name
             }
             // Props question set
             else {
@@ -111,9 +111,9 @@ module.exports = class extends BaseGenerator {
     _generateContext(output) {
         this.fs.copyTpl(
             this.templatePath("Context.tsx"),
-            this.destinationPath(`${output}/${this.name}Context.tsx`),
+            this.destinationPath(`${output}/${this.baseName}Context.tsx`),
             {
-                name: this.name,
+                name: this.baseName,
                 props: this.templateProps,
                 ...this.options
             }
@@ -123,9 +123,9 @@ module.exports = class extends BaseGenerator {
     _generateContainer(output) {
         this.fs.copyTpl(
             this.templatePath("Container.tsx"),
-            this.destinationPath(`${output}/${this.name}Container.tsx`),
+            this.destinationPath(`${output}/${this.baseName}Container.tsx`),
             {
-                name: this.name,
+                name: this.baseName,
                 props: this.templateProps,
                 ...this.options
             }
