@@ -27,7 +27,7 @@ module.exports = class extends BaseGenerator {
     }
 
     /**
-     * Builds list of subgenerators to be logged.
+     * Builds list of subgenerator names to be logged.
      * @return {string[]} 
      */
     _listSubgenerators() {

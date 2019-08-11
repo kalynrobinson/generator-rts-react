@@ -2,7 +2,7 @@
 const Generator = require("yeoman-generator")
 const prettier = require("gulp-prettier")
 const filter = require("gulp-filter")
-var signBunny = require("sign-bunny")
+const signBunny = require("sign-bunny")
 const chalk = require("chalk")
 
 const prettierFilter = filter(["**/*.{js,jsx,ts,tsx}"], { restore: true })

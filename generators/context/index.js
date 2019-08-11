@@ -1,148 +1,168 @@
 "use strict"
 const BaseGenerator = require("../BaseGenerator")
 
-const options = require("./options")
+const optionsObj = require("./options")
+
+const namePrompt = [
+    {
+        type: "input",
+        name: "name",
+        message: "Context name?",
+        required: true,
+        default: "Dummy"
+    },
+    {
+        type: "confirm",
+        name: "addProps",
+        message: "Do you want to add props?",
+        default: "Y"
+    }
+]
+
+const propPrompts = [
+    {
+        type: "input",
+        name: "attributeName",
+        message: "Prop name?",
+        default: "dummy"
+    },
+    {
+        type: "input",
+        name: "attributeType",
+        message: "Prop type?",
+        default: "any"
+    },
+    {
+        type: "confirm",
+        name: "addProps",
+        message: "Do you want to add more props?",
+        default: "Y"
+    }
+]
 
 module.exports = class extends BaseGenerator {
     /**
      * Bind callbacks and register options/arguments.
      * @constructor
      */
-    constructor(args, opts) {
+    constructor(args, opts, options = optionsObj) {
         super(args, opts)
 
-        // Register options
-        Object.entries(options).forEach(([name, config]) =>
-            this.option(name, config)
-        )
+        this.namePrompt = namePrompt
+        this.propPrompts = propPrompts
+        this.templateProps = []
+        this.baseName = ""
+        this.optionObj = options
+
+        this._registerOptions()
     }
 
     prompting() {
         this._greet()
+        this._registerOptions()
 
-        const namePrompt = [
-            {
-                type: "input",
-                name: "name",
-                message: "Context name?",
-                required: true,
-                default: "Dummy"
-            },
-            {
-                type: "confirm",
-                name: "addProps",
-                message: "Do you want to add props?",
-                default: "Y"
+        return this._loop(this.namePrompt)
+    }
+
+    _registerOptions() {
+        Object.entries(this.optionObj).forEach(([name, config]) =>
+            this.option(name, config)
+        )
+    }
+
+    /**
+     * Repeat props questions until user declines.
+     */
+    _loop(relevantPrompts) {
+        return this.prompt(relevantPrompts).then(props => {
+            // Initial question set
+            if (props.name) {
+                this.name = props.name
             }
-        ]
-
-        const columnPrompts = [
-            {
-                type: "input",
-                name: "attributeName",
-                message: "Prop name?",
-                default: "dummy"
-            },
-            {
-                type: "input",
-                name: "attributeType",
-                message: "Prop type?",
-                default: "any"
-            },
-            {
-                type: "confirm",
-                name: "addProps",
-                message: "Do you want to add more props?",
-                default: "Y"
+            // Props question set
+            else {
+                this.templateProps.push(props)
             }
-        ]
 
-        this.columns = []
-
-        /**
-         * Repeat props questions until user declines.
-         */
-        const loop = relevantPrompts => {
-            return this.prompt(relevantPrompts).then(props => {
-                // Initial question set
-                if (props.name) {
-                    this.name = props.name
-                }
-                // Props question set
-                else {
-                    this.columns.push(props)
-                }
-
-                return props.addProps ? loop(columnPrompts) : this.prompt([])
-            })
-        }
-
-        return loop([...namePrompt])
+            return props.addProps ? this._loop(this.propPrompts) : this.prompt([])
+        })
     }
 
     writing() {
-        this._generateContext()
-        this._generateContainer()
-        this._modifyModule()
-        this._modifyContainerModule()
+        this._generateContext(this.options.output)
+
+        if (this.options.container) {
+            this._generateContainer(
+                this.options.containerOutput || this.options.output
+            )
+        }
+
+        if (this.options.module) {
+            this._modifyContextModule(this.options.output)
+        }
+
+        if (this.options.container && this.options.module) {
+            this._modifyContainerModule(
+                this.options.containerOutput || this.options.output
+            )
+        }
     }
 
-    _generateContext() {
+    _generateContext(output) {
         this.fs.copyTpl(
             this.templatePath("Context.tsx"),
-            this.destinationPath(
-                `${this.options.output}/${this.name}Context.tsx`
-            ),
+            this.destinationPath(`${output}/${this.name}Context.tsx`),
             {
                 name: this.name,
-                props: this.columns,
+                props: this.templateProps,
                 ...this.options
             }
         )
     }
 
-    _generateContainer() {
-        if (this.options.container) {
-            this.fs.copyTpl(
-                this.templatePath("Container.tsx"),
-                this.destinationPath(
-                    `${this.options.containerOutput || this.options.output}/${
-                        this.name
-                    }Container.tsx`
-                ),
-                {
-                    name: this.name,
-                    props: this.columns,
-                    ...this.options
-                }
-            )
-        }
-    }
-
-    _modifyModule() {
-        if (this.options.module) {
-            this.fs.append(
-                `${this.options.output}/index.ts`,
-                `
-            export * from "./${this.name}Context"`
-            )
-        }
-    }
-
-    _modifyContainerModule() {
-        if (this.options.container && this.options.module) {
-            const destination =
-                this.options.containerOutput || this.options.output
-
-            try {
-                this.fs.append(
-                    `${destination}/index.ts`,
-                    `
-            export * from "./${this.name}Container"`
-                )
-            } catch (e) {
-                this.log(`Failed updating ${destination}/index.ts....`)
+    _generateContainer(output) {
+        this.fs.copyTpl(
+            this.templatePath("Container.tsx"),
+            this.destinationPath(`${output}/${this.name}Container.tsx`),
+            {
+                name: this.name,
+                props: this.templateProps,
+                ...this.options
             }
+        )
+    }
+
+    _modifyContextModule(output) {
+        if (this.fs.exists(`${output}/index.ts`)) {
+            this.fs.append(
+                `${output}/index.ts`,
+                `\nexport * from "./${this.baseName}Context"`
+            )
+        } else {
+            this.fs.write(
+                `${output}/index.ts`,
+                `export * from "./${this.baseName}Context"`
+            )
+        }
+    }
+
+    /**
+     * Appends ES6 export to index.ts or writes to a new file.
+     * 
+     * @param {string} output 
+     * @param {string} name 
+     */
+    _modifyContainerModule(output) {
+        if (this.fs.exists(`${output}/index.ts`)) {
+            this.fs.append(
+                `${output}/index.ts`,
+    `\nexport * from "./${this.baseName}Container"`
+            )
+        } else {
+            this.fs.write(
+                `${output}/index.ts`,
+                `export * from "./${this.baseName}Container"`
+            )
         }
     }
 }
